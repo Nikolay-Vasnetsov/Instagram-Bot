@@ -168,10 +168,3 @@ class InstagramBot():
                     time.sleep(random.randrange(80, 110))
 
             self.close_browser()
-
-
-bot = InstagramBot(username, pwd)
-
-bot.login()
-
-bot.like_post_by_hashtag("followforfollowback", 2)
