@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 import random
+import os
 
 
 class InstagramBot():
@@ -18,8 +19,19 @@ class InstagramBot():
         self.xpath_post_count = "/html/body/div[1]/section/main/div/header/section/ul/li[1]/span/span"
         # xpath прошедшего времени с момента публикации поста
         self.xpath_post_age = "/html/body/div[1]/section/main/div/div[1]/article/div[3]/div[2]/a/time"
+        self.time_start = time.strftime("%d.%m.%y_%H.%M")
+
+    def write_log_file(self, event):
+        if os.path.exists("log"):
+            pass
+        else:
+            os.mkdir("log")
+
+        with open(f"log/{self.time_start}_log.txt", "a") as file:
+            file.write(str(time.strftime("[%x %X] ")) + str(event) + "\n")
 
     def close_browser(self):
+        self.write_log_file("closure browser through method close_browser()")
         self.browser.close()
         self.browser.quit()
 
@@ -27,6 +39,7 @@ class InstagramBot():
         browser = self.browser
 
         browser.get('https://instagram.com/')
+        self.write_log_file("open instagram.com for log in")
         time.sleep(random.randrange(3, 5))
 
         username_input = browser.find_element_by_name("username")
@@ -41,16 +54,20 @@ class InstagramBot():
 
         password_input.send_keys(Keys.ENTER)
         time.sleep(10)
+        self.write_log_file("successful log in")
 
     def like_post_by_hashtag(self, hashtag, work_time):
 
         browser = self.browser
 
-        for _ in range(0, work_time):
+        for i in range(0, work_time):
+
+            self.write_log_file(f"loop number {i}")
 
             start_time_count = time.time()
 
             browser.get(f'https://www.instagram.com/explore/tags/{hashtag}/')
+            self.write_log_file("opening link with hashtag")
             time.sleep(5)
 
             # Как много бот соберет постов для лайка 1 = ~8 постов
@@ -71,6 +88,8 @@ class InstagramBot():
                     break
 
                 browser.get(url)
+                self.write_log_file(f"jump to {url}")
+                browser.refresh()
                 time.sleep(5)
 
                 if self.xpath_exist(self.xpath_wrong_url):
@@ -83,12 +102,14 @@ class InstagramBot():
 
                     if time_name in time_names:
                         like_button = browser.find_element_by_xpath(self.xpath_like_button).click()
+                        self.write_log_file(f"liked {url}")
                         # врямя между лайками
                         # для акка < 3 мес 30 дайствий в час и 120 в день
                         # для акка > 6 мес 60 дайствий в час и 1604 в день
                         # если в среднем взять 40 лайков в час 3600 / 40 = 90
-                        time.sleep(random.randrange(80, 100))
+                        time.sleep(random.randrange(75, 95))
                     else:
+                        self.write_log_file("skipped post")
                         continue
         self.close_browser()
         exit()
@@ -100,7 +121,9 @@ class InstagramBot():
         try:
             browser.find_element_by_xpath(xpath)
             exist = True
+            self.write_log_file("page not found")
         except Exception:
+            self.write_log_file("all okay, page found")
             exist = False
         return exist
 
