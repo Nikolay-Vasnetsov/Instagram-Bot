@@ -1,6 +1,5 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from config import username, pwd
 import time
 import random
 
@@ -43,46 +42,56 @@ class InstagramBot():
         password_input.send_keys(Keys.ENTER)
         time.sleep(10)
 
-    def like_post_by_hashtag(self, hashtag, post_count):
+    def like_post_by_hashtag(self, hashtag, work_time):
 
         browser = self.browser
 
-        browser.get(f'https://www.instagram.com/explore/tags/{hashtag}/')
-        time.sleep(5)
+        for _ in range(0, work_time):
 
-        # Как много бот соберет постов для лайка 1 = ~8 постов
-        for i in range(1, post_count):
-            browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(random.randrange(3, 5))
+            start_time_count = time.time()
 
-        # находит все ссылки на странице
-        hrefs = browser.find_elements_by_tag_name('a')
+            browser.get(f'https://www.instagram.com/explore/tags/{hashtag}/')
+            time.sleep(5)
 
-        # перебирает все ссылки найденые на странице и оставляет только публикации
-        posts_urls = [item.get_attribute('href') for item in hrefs if "/p/" in item.get_attribute('href')]
+            # Как много бот соберет постов для лайка 1 = ~8 постов
+            for i in range(1, 8):
+                browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(random.randrange(3, 5))
 
-        for url in posts_urls:
+            # находит все ссылки на странице
+            hrefs = browser.find_elements_by_tag_name('a')
 
-            browser.get(url)
-            time.sleep(3)
+            # перебирает все ссылки найденые на странице и оставляет только публикации
+            posts_urls = [item.get_attribute('href') for item in hrefs if "/p/" in item.get_attribute('href')]
 
-            if self.xpath_exist(self.xpath_wrong_url):
-                continue
-            else:
-                post_age = browser.find_element_by_xpath(self.xpath_post_age).text
+            for url in posts_urls[9::]:
 
-                time_name = post_age.split(" ")[1]
-                time_names = ["SECOND", "SECONDS", "MINUTE", "MINUTES"]
+                time_passed = int(time.time() - start_time_count)
+                if time_passed >= 2400:
+                    break
 
-                if time_name in time_names:
-                    like_button = browser.find_element_by_xpath(self.xpath_like_button).click()
-                    # врямя между лайками
-                    # для акка < 3 мес 30 дайствий в час и 120 в день
-                    # для акка > 6 мес 60 дайствий в час и 1604 в день
-                    # если в среднем взять 40 лайков в час 3600 / 40 = 90
-                    time.sleep(random.randrange(80, 100))
-                else:
+                browser.get(url)
+                time.sleep(5)
+
+                if self.xpath_exist(self.xpath_wrong_url):
                     continue
+                else:
+                    post_age = browser.find_element_by_xpath(self.xpath_post_age).text
+
+                    time_name = post_age.split(" ")[1]
+                    time_names = ["SECOND", "SECONDS", "MINUTE", "MINUTES"]
+
+                    if time_name in time_names:
+                        like_button = browser.find_element_by_xpath(self.xpath_like_button).click()
+                        # врямя между лайками
+                        # для акка < 3 мес 30 дайствий в час и 120 в день
+                        # для акка > 6 мес 60 дайствий в час и 1604 в день
+                        # если в среднем взять 40 лайков в час 3600 / 40 = 90
+                        time.sleep(random.randrange(80, 100))
+                    else:
+                        continue
+        self.close_browser()
+        exit()
 
     def xpath_exist(self, xpath):
 
