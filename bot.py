@@ -28,7 +28,9 @@ class InstagramBot():
             os.mkdir("log")
 
         with open(f"log/{self.time_start}_log.txt", "a") as file:
-            file.write(str(time.strftime("[%x %X] ")) + str(event) + "\n")
+            log_info = str(time.strftime("[%x %X] ")) + str(event) + "\n"
+            file.write(log_info)
+            print(log_info)
 
     def close_browser(self):
         self.write_log_file("closure browser through method close_browser()")
@@ -84,7 +86,7 @@ class InstagramBot():
             for url in posts_urls[9::]:
 
                 time_passed = int(time.time() - start_time_count)
-                if time_passed >= 2400:
+                if time_passed >= 1200:
                     break
 
                 browser.get(url)
@@ -107,7 +109,7 @@ class InstagramBot():
                         # для акка < 3 мес 30 дайствий в час и 120 в день
                         # для акка > 6 мес 60 дайствий в час и 1604 в день
                         # если в среднем взять 40 лайков в час 3600 / 40 = 90
-                        time.sleep(random.randrange(75, 95))
+                        time.sleep(random.randrange(90, 110))
                     else:
                         self.write_log_file("skipped post")
                         continue
